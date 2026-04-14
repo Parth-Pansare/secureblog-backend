@@ -2,6 +2,7 @@ package com.parth.secureblog.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -29,7 +30,24 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Auth APIs
                         .requestMatchers("/auth/**").permitAll()
+                        
+                        // Posts APIs
+                        .requestMatchers(HttpMethod.GET, "/posts/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/posts/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/posts/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
+                        
+                        // Comments APIs
+                        .requestMatchers(HttpMethod.POST, "/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/comments/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/comments/**").hasRole("ADMIN")
+                        
+                        // Users APIs
+                        .requestMatchers("/users/**").hasRole("ADMIN")
+                        
+                        // All other APIs
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
